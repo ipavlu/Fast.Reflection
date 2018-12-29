@@ -1,0 +1,52 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netcoreapp2.0</TargetFramework>
+
+    <IsPackable>true</IsPackable>
+
+    <Authors>vexe, ipavlu</Authors>
+
+    <Description>Fast, concurrently safe NetStandard 2.0  Reflection.Emit based dynamic invocation for parametric and paremeterless constructors, methods, properties and fields with caching support for already created delegates. Concurrent performance could be still improved, but concurrent safety was achieved!
+
+This is work based on fork of github project of author Vexe:  https://github.com/vexe/Fast.Reflection
+
+I was interested to make this code concurrently safe and compliant to NetStandard 2.0 and accessible from nuget.org</Description>
+
+    <Copyright>Copyright (c) 2015 [vexe], Copyright 2018 ipavlu</Copyright>
+
+    <PackageLicenseUrl>https://github.com/ipavlu/Fast.Reflection/blob/master/LICENSE</PackageLicenseUrl>
+
+    <PackageProjectUrl>https://github.com/ipavlu/Fast.Reflection</PackageProjectUrl>
+
+    <RepositoryUrl>https://github.com/ipavlu/Fast.Reflection</RepositoryUrl>
+
+    <PackageTags>1.0.0</PackageTags>
+
+    <PackageReleaseNotes>First release.</PackageReleaseNotes>
+
+    <AssemblyVersion>1.0.0.1</AssemblyVersion>
+
+    <Product>Concurrent.FastReflection.NetStandard.Test</Product>
+
+    <PackageId>Concurrent.FastReflection.NetStandard.Test</PackageId>
+
+    <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
+
+    <Version>1.0.0.1</Version>
+
+    <PackageRequireLicenseAcceptance>False</PackageRequireLicenseAcceptance>
+
+    <FileVersion>1.0.0.1</FileVersion>
+
+    <Company>vexe, ipavlu</Company>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Concurrent.FastReflection.NetStandard" Version="1.0.0" />
+    <PackageReference Include="nunit" Version="3.10.1" />
+    <PackageReference Include="NUnit3TestAdapter" Version="3.10.0" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="15.8.0" />
+  </ItemGroup>
+
+</Project>

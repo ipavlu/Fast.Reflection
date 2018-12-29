@@ -1,20 +1,18 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using NUnit.Framework;
 
-namespace Vexe.Runtime.Extensions
+namespace Consurrent.FastReflection.NetCore.Test
 {
-    using NUnit.Framework;
-
-    public class TestObject
+	public class TestObject
     {
         public int SomeField = 5;
         public readonly int SomeReadonlyField = 55;
         public const string SomeConstField = "This is a const field";
 
-        public int SomeProperty { get; set; }
+		public TestObject() { }
+		public TestObject(int someField) { SomeField = someField; }
+
+		public int SomeProperty { get; set; }
         public int SomeBackedProperty { get { return SomeField; } set { SomeField = value; } }
         public int SomeReadonlyProperty {  get { return SomeReadonlyField; } }
         public string SomeConstProperty { get {  return SomeConstField; } }
@@ -23,7 +21,35 @@ namespace Vexe.Runtime.Extensions
     [TestFixture]
     public class FastReflectionTests
     {
-        [Test]
+	    [Test]
+	    public void ConstructClassParameterlessTest()
+	    {
+		    var type = typeof(TestObject);
+
+		    CtorInvoker<TestObject> dlgt = null;
+		    Assert.DoesNotThrow(() => dlgt = type.DelegateForCtor<TestObject>());
+
+		    TestObject obj = null;
+		    Assert.DoesNotThrow(() => obj = dlgt(Array.Empty<object>()));
+			Assert.IsNotNull(obj);
+	    }
+
+	    [Test]
+	    public void ConstructClassParametricTest()
+	    {
+		    var type = typeof(TestObject);
+
+		    CtorInvoker<TestObject> dlgt = null;
+		    Assert.DoesNotThrow(() => dlgt = type.DelegateForCtor<TestObject>(typeof(int)));
+
+		    TestObject obj = null;
+		    Assert.DoesNotThrow(() => obj = dlgt(new object[] {6}));
+		    Assert.IsNotNull(obj);
+		    Assert.AreEqual(6, obj.SomeField);
+	    }
+
+
+		[Test]
         public void Can_Get_Property_Getter()
         {
             var propertyInfo = typeof (TestObject).GetProperty("SomeProperty");
@@ -31,6 +57,16 @@ namespace Vexe.Runtime.Extensions
 
             Assert.DoesNotThrow(() => { getter = propertyInfo.DelegateForGet(); });
             Assert.IsNotNull(getter);
+
+			TestObject obj = new TestObject
+			{
+				SomeProperty = 5
+			};
+
+			int result = 0;
+	        Assert.DoesNotThrow(() => { result = (int)getter(obj); });
+			Assert.AreEqual(5, result);
+
         }
 
         [Test]
