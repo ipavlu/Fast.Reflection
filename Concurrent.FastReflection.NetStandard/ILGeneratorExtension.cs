@@ -1,6 +1,6 @@
 ﻿using System.Reflection.Emit;
 
-namespace Consurrent.FastReflection.NetCore
+namespace Concurrent.FastReflection.NetCore
 {
 	public static class ILGeneratorExtension
 	{

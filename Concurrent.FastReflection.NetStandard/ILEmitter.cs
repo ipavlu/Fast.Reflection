@@ -2,7 +2,7 @@
 using System.Reflection;
 using System.Reflection.Emit;
 
-namespace Consurrent.FastReflection.NetCore
+namespace Concurrent.FastReflection.NetCore
 {
 #pragma warning disable IDE1006 // Naming Styles
 	public class ILEmitter

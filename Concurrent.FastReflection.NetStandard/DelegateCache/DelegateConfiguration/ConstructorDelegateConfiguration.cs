@@ -2,7 +2,7 @@
 using System.Collections.Immutable;
 using System.Linq;
 
-namespace Consurrent.FastReflection.NetCore
+namespace Concurrent.FastReflection.NetCore
 {
 	internal class ConstructorDelegateConfiguration<TTarget> : ADelegateConfiguration<ConstructorDelegateConfiguration<TTarget>>
 	{

@@ -1,7 +1,7 @@
 ﻿using System;
 using NUnit.Framework;
 
-namespace Consurrent.FastReflection.NetCore.Test
+namespace Concurrent.FastReflection.NetCore.Test
 {
 	public class TestObject
     {

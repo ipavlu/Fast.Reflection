@@ -3,7 +3,7 @@ using System.Linq;
 using System.Reflection;
 using System.Reflection.Emit;
 
-namespace Consurrent.FastReflection.NetCore
+namespace Concurrent.FastReflection.NetCore
 {
 	public delegate void MemberSetter<TTarget, TValue>(ref TTarget target, TValue value);
 	public delegate TReturn MemberGetter<TTarget, TReturn>(TTarget target);

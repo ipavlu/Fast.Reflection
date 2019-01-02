@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Consurrent.FastReflection.NetCore
+namespace Concurrent.FastReflection.NetCore
 {
 	internal abstract class ADelegateConfiguration<T> : ADelegateConfiguration where T : ADelegateConfiguration
 	{

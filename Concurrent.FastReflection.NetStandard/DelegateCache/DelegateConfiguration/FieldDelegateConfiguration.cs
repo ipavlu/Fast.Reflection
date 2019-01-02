@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Reflection;
 
-namespace Consurrent.FastReflection.NetCore
+namespace Concurrent.FastReflection.NetCore
 {
 	internal class FieldDelegateConfiguration<TTarget, TReturn, TDirection> : ADelegateConfiguration<FieldDelegateConfiguration<TTarget, TReturn, TDirection>>
 	{
