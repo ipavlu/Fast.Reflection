@@ -1,10 +1,13 @@
 ﻿using System;
 using System.Reflection;
 
-namespace Concurrent.FastReflection.NetCore
+namespace Concurrent.FastReflection.NetStandard.DelegateCache.DelegateConfiguration
 {
 	internal class FieldDelegateConfiguration<TTarget, TReturn, TDirection> : ADelegateConfiguration<FieldDelegateConfiguration<TTarget, TReturn, TDirection>>
 	{
+		private int Code { get; }
+		protected override int FactoryGetHashCode() => Code;
+
 		public Type TargetType => typeof(TTarget);
 		public Type ReturnType => typeof(TReturn);
 		public Type DirectionType => typeof(TDirection);
@@ -16,28 +19,23 @@ namespace Concurrent.FastReflection.NetCore
 			: base(storeDelegate)
 		{
 			Field = field ?? throw new ArgumentNullException(nameof(field));
-			HashCode = GetHashCode();
-		}
 
-		public override int GetHashCode()
-		{
-			int code;
 			unchecked
 			{
-				code = TargetType.GetHashCode();
-				code ^= 397 * TargetType.GetHashCode();
-				code ^= 397 * ReturnType.GetHashCode();
-				code ^= 397 * DirectionType.GetHashCode();
-				code ^= 397 * Field.GetHashCode();
-				return code;
+				Code = TargetType.GetHashCode();
+				Code ^= 397 * ReturnType.GetHashCode();
+				Code ^= 397 * DirectionType.GetHashCode();
+				Code ^= 397 * Field.GetHashCode();
 			}
 		}
-
+		
 		protected override bool EqualsOfT(FieldDelegateConfiguration<TTarget, TReturn, TDirection> other) =>
-			other?.TargetType == TargetType &&
-			other.ReturnType == ReturnType &&
-			other.DirectionType == DirectionType &&
-			other.Field == Field
+		other != null &&
+		other.Code == Code &&
+		other.TargetType == TargetType &&
+		other.ReturnType == ReturnType &&
+		other.DirectionType == DirectionType &&
+		other.Field == Field
 		;
 	}
 }

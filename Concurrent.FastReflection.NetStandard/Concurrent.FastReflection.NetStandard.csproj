@@ -1,10 +1,11 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
+	<PreserveCompilationContext>false</PreserveCompilationContext>
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
-    <AssemblyVersion>1.0.1</AssemblyVersion>
-    <FileVersion>1.0.1</FileVersion>
+    <AssemblyVersion>1.2.1.1</AssemblyVersion>
+    <FileVersion>1.2.1.1</FileVersion>
     <Authors>vexe, ipavlu</Authors>
     <Company>vexe, ipavlu</Company>
     <Description>Fast, concurrently safe NetStandard 2.0  Reflection.Emit based dynamic invocation for parametric and paremeterless constructors, methods, properties and fields with caching support for already created delegates. Concurrent performance could be still improved, but concurrent safety was achieved!
@@ -15,12 +16,12 @@ I was interested to make this code concurrently safe and compliant to NetStandar
     <PackageLicenseUrl>https://github.com/ipavlu/Fast.Reflection/blob/master/LICENSE</PackageLicenseUrl>
     <PackageProjectUrl>https://github.com/ipavlu/Fast.Reflection</PackageProjectUrl>
     <RepositoryUrl>https://github.com/ipavlu/Fast.Reflection</RepositoryUrl>
-    <PackageTags>1.0.1</PackageTags>
+    <PackageTags>1.2.1.1</PackageTags>
     <PackageReleaseNotes>First release.</PackageReleaseNotes>
     <Copyright>Copyright (c) 2015 [vexe], Copyright 2018 ipavlu</Copyright>
     <Product>Concurrent.FastReflection.NetStandard</Product>
     <PackageId>Concurrent.FastReflection.NetStandard</PackageId>
-    <Version>1.0.1</Version>
+    <Version>1.2.1.1</Version>
     <PackageRequireLicenseAcceptance>False</PackageRequireLicenseAcceptance>
   </PropertyGroup>
 

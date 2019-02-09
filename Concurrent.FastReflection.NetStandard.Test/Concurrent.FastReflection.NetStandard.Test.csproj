@@ -2,6 +2,7 @@
 
   <PropertyGroup>
     <TargetFramework>netcoreapp2.0</TargetFramework>
+	<PreserveCompilationContext>false</PreserveCompilationContext>
 
     <IsPackable>true</IsPackable>
 
@@ -21,11 +22,11 @@ I was interested to make this code concurrently safe and compliant to NetStandar
 
     <RepositoryUrl>https://github.com/ipavlu/Fast.Reflection</RepositoryUrl>
 
-    <PackageTags>1.0.1</PackageTags>
+    <PackageTags>1.2.1.1</PackageTags>
 
     <PackageReleaseNotes>First release.</PackageReleaseNotes>
 
-    <AssemblyVersion>1.0.1</AssemblyVersion>
+    <AssemblyVersion>1.2.1.1</AssemblyVersion>
 
     <Product>Concurrent.FastReflection.NetStandard.Test</Product>
 
@@ -33,17 +34,17 @@ I was interested to make this code concurrently safe and compliant to NetStandar
 
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
 
-    <Version>1.0.1</Version>
+    <Version>1.2.1.1</Version>
 
     <PackageRequireLicenseAcceptance>False</PackageRequireLicenseAcceptance>
 
-    <FileVersion>1.0.1</FileVersion>
+    <FileVersion>1.2.1.1</FileVersion>
 
     <Company>vexe, ipavlu</Company>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Concurrent.FastReflection.NetStandard" Version="1.0.1" />
+    <PackageReference Include="Concurrent.FastReflection.NetStandard" Version="1.2.1.1" />
     <PackageReference Include="nunit" Version="3.11.0" />
     <PackageReference Include="NUnit3TestAdapter" Version="3.12.0" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="15.9.0" />

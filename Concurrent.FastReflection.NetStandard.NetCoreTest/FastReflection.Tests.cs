@@ -23,7 +23,6 @@ namespace Concurrent.FastReflection.NetStandard.Test
 	[TestFixture]
 	public class FastReflectionTests
 	{
-
 		/// <summary> Does not throw on NetCore </summary>
 		[Test]
 		public void ConstructInternalClassThrowsOnMissingModuleTest()

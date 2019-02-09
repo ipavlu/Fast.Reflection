@@ -2,12 +2,13 @@
 using System.Collections.Generic;
 using System.Reflection;
 using System.Threading;
+using Concurrent.FastReflection.NetStandard.DelegateCache.DelegateConfiguration;
 
-namespace Concurrent.FastReflection.NetCore
+namespace Concurrent.FastReflection.NetStandard.DelegateCache
 {
 	internal class TransactionalDelegateCache
 	{
-		private readonly object Lock = new object();
+		private readonly object _lock = new object();
 		private IDictionary<ADelegateConfiguration, ADelegateConfiguration> Cache { get; } = new Dictionary<ADelegateConfiguration, ADelegateConfiguration>();
 
 		private Action<ADelegateConfiguration> StoreTransactionAction { get; }
@@ -21,7 +22,7 @@ namespace Concurrent.FastReflection.NetCore
 
 		private void ExitTransaction(ADelegateConfiguration ignoreDelegate)
 		{
-			Monitor.Exit(Lock);
+			Monitor.Exit(_lock);
 			//used memory barrier, little less performant,
 			//but ensures fairness on heavy loaded boxes
 		}
@@ -32,12 +33,12 @@ namespace Concurrent.FastReflection.NetCore
 			ExitTransactionAction = ExitTransaction;
 		}
 
-		public DelegateCacheTransaction<ConstructorDelegateConfiguration<TTarget>> Transaction<TTarget>(Type type, Type[] argsTypes = null)
+		public DelegateCacheTransaction<ConstructorDelegateConfiguration<TTarget>> Transaction<TTarget>(Module module, Type type, Type[] argsTypes = null)
 		{
-			ADelegateConfiguration search = new ConstructorDelegateConfiguration<TTarget>(type, argsTypes);
+			ADelegateConfiguration search = new ConstructorDelegateConfiguration<TTarget>(module, type, argsTypes);
 
 			bool gotLock = false;
-			Monitor.Enter(Lock, ref gotLock);
+			Monitor.Enter(_lock, ref gotLock);
 			if (!gotLock) throw new InvalidOperationException($"{nameof(TransactionalDelegateCache)}.{nameof(Transaction)}: failed to acquire access");
 
 			return
@@ -52,7 +53,7 @@ namespace Concurrent.FastReflection.NetCore
 			ADelegateConfiguration search = new PropertyDelegateConfiguration<TTarget, TReturn, TDirection>(property);
 
 			bool gotLock = false;
-			Monitor.Enter(Lock, ref gotLock);
+			Monitor.Enter(_lock, ref gotLock);
 			if (!gotLock) throw new InvalidOperationException($"{nameof(TransactionalDelegateCache)}.{nameof(Transaction)}: failed to acquire access");
 
 			return
@@ -67,7 +68,7 @@ namespace Concurrent.FastReflection.NetCore
 			ADelegateConfiguration search = new FieldDelegateConfiguration<TTarget, TReturn, TDirection>(field);
 
 			bool gotLock = false;
-			Monitor.Enter(Lock, ref gotLock);
+			Monitor.Enter(_lock, ref gotLock);
 			if (!gotLock) throw new InvalidOperationException($"{nameof(TransactionalDelegateCache)}.{nameof(Transaction)}: failed to acquire access");
 
 			return
@@ -83,7 +84,7 @@ namespace Concurrent.FastReflection.NetCore
 			ADelegateConfiguration search = new MemberDelegateConfiguration<TTarget, TReturn>(member);
 
 			bool gotLock = false;
-			Monitor.Enter(Lock, ref gotLock);
+			Monitor.Enter(_lock, ref gotLock);
 			if (!gotLock) throw new InvalidOperationException($"{nameof(TransactionalDelegateCache)}.{nameof(Transaction)}: failed to acquire access");
 
 			return

@@ -1,40 +1,46 @@
 ﻿using System;
 using System.Collections.Immutable;
-using System.Linq;
+using System.Reflection;
 
-namespace Concurrent.FastReflection.NetCore
+namespace Concurrent.FastReflection.NetStandard.DelegateCache.DelegateConfiguration
 {
 	internal class ConstructorDelegateConfiguration<TTarget> : ADelegateConfiguration<ConstructorDelegateConfiguration<TTarget>>
 	{
+		private int Code { get; }
+		protected override int FactoryGetHashCode() => Code;
+
 		public Type RequestType => typeof(TTarget);
 		public Type Type { get; }
+		public Module Module { get; }
 		public ImmutableArray<Type> ArgsTypes { get; }
-		private ImmutableArray<Type> Configuration { get; }
 
-		public ConstructorDelegateConfiguration(Type type, Type[] argsTypes = null) : this(null, type, argsTypes) { }
-
-		public ConstructorDelegateConfiguration(Delegate storeDelegate, Type type, Type[] argsTypes = null)
+		public ConstructorDelegateConfiguration(Module module, Type type, Type[] argsTypes = null) : this(null, module, type, argsTypes) { }
+		public ConstructorDelegateConfiguration(Delegate storeDelegate, Module module, Type type, Type[] argsTypes = null)
 			: base(storeDelegate)
 		{
 			Type = type;
-			ArgsTypes = (argsTypes = argsTypes ?? Array.Empty<Type>()).ToImmutableArray();
-			Configuration = ImmutableArray.Create<Type>().Add(RequestType).Add(Type).AddRange(ArgsTypes);
+			ArgsTypes = (argsTypes ?? Array.Empty<Type>()).ToImmutableArray();
+			Module = module;
 
-			HashCode =
-				Configuration
-					.Select(x => x.GetHashCode())
-					.Aggregate((c, n) => { unchecked { return c ^ (397 * n); } })
-				;
+			unchecked
+			{
+				Code = RequestType.GetHashCode();
+				Code ^= 397 * Type.GetHashCode();
+				Code = Module == null ? Code : Code ^ (397 * Module.GetHashCode());
+				for (int i = 0; i < ArgsTypes.Length; ++i)
+				{
+					Code ^= 397 * ArgsTypes[i].GetHashCode();
+				}
+			}
 		}
 
-		public override int GetHashCode() => HashCode;
-
 		protected override bool EqualsOfT(ConstructorDelegateConfiguration<TTarget> other) =>
-			other?.Configuration.Length == Configuration.Length &&
-			Enumerable
-				.Range(0, Configuration.Length)
-				.Select(i => other.Configuration[i] == Configuration[i])
-				.All(x => x)
+		other != null &&
+		other.Code == Code &&
+		other.RequestType == RequestType &&
+		other.Type == Type &&
+		other.Module == Module &&
+		CompareTypeSequences(other.ArgsTypes, ArgsTypes)
 		;
 	}
 }

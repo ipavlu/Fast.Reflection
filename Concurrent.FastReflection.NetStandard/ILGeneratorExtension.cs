@@ -1,6 +1,8 @@
 ﻿using System.Reflection.Emit;
 
-namespace Concurrent.FastReflection.NetCore
+// ReSharper disable InconsistentNaming
+
+namespace Concurrent.FastReflection.NetStandard
 {
 	public static class ILGeneratorExtension
 	{

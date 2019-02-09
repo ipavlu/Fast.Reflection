@@ -2,7 +2,9 @@
 using System.Reflection;
 using System.Reflection.Emit;
 
-namespace Concurrent.FastReflection.NetCore
+// ReSharper disable InconsistentNaming
+
+namespace Concurrent.FastReflection.NetStandard
 {
 #pragma warning disable IDE1006 // Naming Styles
 	public class ILEmitter

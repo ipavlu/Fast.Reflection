@@ -21,37 +21,36 @@ namespace Concurrent.FastReflection.NetStandard.Test
 	}
 
 	[TestFixture]
-	public class FastReflectionTests
-	{
-
-		/// <summary> Does not throw on NetCore </summary>
-		[Test]
-		public void ConstructInternalClassThrowsOnMissingModuleTest()
-		{
-			var type = typeof(InternalTestObject);
-			var dlgt = type.DelegateForCtor<InternalTestObject>();
-			//Assert.Throws<TypeAccessException>(() => dlgt(Array.Empty<object>()));
-			dlgt(Array.Empty<object>());
+    public class FastReflectionTests
+    {
+	    [Test]
+	    public void ConstructInternalClassThrowsOnMissingModuleTest()
+	    {
+		    var type = typeof(InternalTestObject);
+		    var dlgt = type.DelegateForCtor<InternalTestObject>();
+			Assert.Throws<TypeAccessException>(() => dlgt(Array.Empty<object>()));
 		}
 
 		[Test]
-		public void ConstructInternalClassWithModuleTest()
-		{
-			var type = typeof(InternalTestObject);
-			var dlgt = type.DelegateForCtor<InternalTestObject>(type.Module);
-			dlgt(Array.Empty<object>());
-		}
+	    public void ConstructInternalClassWithModuleTest()
+	    {
+		    var type = typeof(InternalTestObject);
+		    var dlgt = type.DelegateForCtor<InternalTestObject>(type.Module);
+		    dlgt(Array.Empty<object>());
+	    }
 
 		[Test]
-		public void ConstructClassParameterlessTest()
-		{
-			var type = typeof(TestObject);
-			var dlgt = type.DelegateForCtor<TestObject>();
+	    public void ConstructClassParameterlessTest()
+	    {
+		    var type = typeof(TestObject);
+		    var dlgt = type.DelegateForCtor<TestObject>();
 
-			TestObject obj = null;
-			Assert.DoesNotThrow(() => obj = dlgt(Array.Empty<object>()));
-			Assert.IsNotNull(obj);
-		}
+		    TestObject obj = null;
+		    Assert.DoesNotThrow(() => obj = dlgt(Array.Empty<object>()));
+		    Assert.IsNotNull(obj);
+	    }
+
+
 
 		[Test]
 	    public void ConstructClassParametricTest()

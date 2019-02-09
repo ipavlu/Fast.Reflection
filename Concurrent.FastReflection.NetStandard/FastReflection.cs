@@ -2,8 +2,10 @@
 using System.Linq;
 using System.Reflection;
 using System.Reflection.Emit;
+using Concurrent.FastReflection.NetStandard.DelegateCache;
+using Concurrent.FastReflection.NetStandard.DelegateCache.DelegateConfiguration;
 
-namespace Concurrent.FastReflection.NetCore
+namespace Concurrent.FastReflection.NetStandard
 {
 	public delegate void MemberSetter<TTarget, TValue>(ref TTarget target, TValue value);
 	public delegate TReturn MemberGetter<TTarget, TReturn>(TTarget target);
@@ -16,27 +18,34 @@ namespace Concurrent.FastReflection.NetCore
 	/// The results are cached. Once a delegate is generated, any subsequent call to generate the same delegate on the same field/property/method will return the previously generated delegate
 	/// Note: Since this generates IL, it won't work on AOT platforms such as iOS an Android. But is useful and works very well in editor codes and standalone targets
 	/// </summary>
-	public static partial class FastReflection
+	public static class FastReflection
 	{
 		private static TransactionalDelegateCache Cache { get; } = new TransactionalDelegateCache();
 
-		const string kCtorInvokerName = "CI<>";
-		const string kMethodCallerName = "MC<>";
-		const string kFieldSetterName = "FS<>";
-		const string kFieldGetterName = "FG<>";
-		const string kPropertySetterName = "PS<>";
-		const string kPropertyGetterName = "PG<>";
+		private const string KCtorInvokerName = "CI<>";
+		private const string KMethodCallerName = "MC<>";
+		private const string KFieldSetterName = "FS<>";
+		private const string KFieldGetterName = "FG<>";
+		private const string KPropertySetterName = "PS<>";
+		private const string KPropertyGetterName = "PG<>";
 
 		/// <summary>
 		/// Generates or gets a strongly-typed open-instance delegate to the specified type constructor that takes the specified type params
 		/// </summary>
-		public static CtorInvoker<T> DelegateForCtor<T>(this Type type, params Type[] paramTypes)
+		public static CtorInvoker<T> DelegateForCtor<T>(this Type type, params Type[] paramTypes) => type.DelegateForCtor<T>(null, paramTypes);
+
+		/// <summary>
+		/// Generates or gets a strongly-typed open-instance delegate to the specified type constructor that takes the specified type params
+		/// </summary>
+		public static CtorInvoker<T> DelegateForCtor<T>(this Type type, Module module, params Type[] paramTypes)
 		{
-			using (var transaction = Cache.Transaction<T>(type, paramTypes))
+			using (var transaction = Cache.Transaction<T>(module, type, paramTypes))
 			{
 				if (transaction.HasDelegate) return (CtorInvoker<T>)transaction.Delegate;
 
-				var dynMethod = new DynamicMethod(kCtorInvokerName, typeof(T), new Type[] { typeof(object[]) });
+				var dynMethod = module == null
+					? new DynamicMethod(KCtorInvokerName, typeof(T), new[] { typeof(object[]) })
+					: new DynamicMethod(KCtorInvokerName, typeof(T), new[] { typeof(object[]) }, module);
 
 				var emit = dynMethod.GetILGenerator().ToILEmitter();
 				GenCtor<T>(emit, type, paramTypes);
@@ -45,7 +54,7 @@ namespace Concurrent.FastReflection.NetCore
 				(CtorInvoker<T>)
 				dynMethod
 				.CreateDelegate(typeof(CtorInvoker<T>))
-				.ToConstructorDelegateConfig<T>(type, paramTypes)
+				.ToConstructorDelegateConfig<T>(module, type, paramTypes)
 				.StoreDelegateConfiguration(transaction)
 				.StoredDelegate
 				;
@@ -73,7 +82,7 @@ namespace Concurrent.FastReflection.NetCore
 				return
 				GenDelegateForMember<MemberGetter<TTarget, TValue>, PropertyInfo>(
 					property,
-					kPropertyGetterName,
+					KPropertyGetterName,
 					GenPropertyGetter<TTarget>,
 					typeof(TValue),
 					typeof(TTarget))
@@ -103,7 +112,7 @@ namespace Concurrent.FastReflection.NetCore
 				return
 				GenDelegateForMember<MemberSetter<TTarget, TValue>, PropertyInfo>(
 						property,
-						kPropertySetterName,
+						KPropertySetterName,
 						GenPropertySetter<TTarget>,
 						typeof(void),
 						typeof(TTarget).MakeByRefType(),
@@ -132,7 +141,7 @@ namespace Concurrent.FastReflection.NetCore
 				return
 					GenDelegateForMember<MemberGetter<TTarget, TValue>, FieldInfo>(
 							field,
-							kFieldGetterName,
+							KFieldGetterName,
 							GenFieldGetter<TTarget>,
 							typeof(TValue),
 							typeof(TTarget))
@@ -160,7 +169,7 @@ namespace Concurrent.FastReflection.NetCore
 				return
 				GenDelegateForMember<MemberSetter<TTarget, TValue>, FieldInfo>(
 						field,
-						kFieldSetterName,
+						KFieldSetterName,
 						GenFieldSetter<TTarget>,
 						typeof(void),
 						typeof(TTarget).MakeByRefType(),
@@ -189,7 +198,7 @@ namespace Concurrent.FastReflection.NetCore
 				return
 				GenDelegateForMember<MethodCaller<TTarget, TReturn>, MethodInfo>(
 						method,
-						kMethodCallerName,
+						KMethodCallerName,
 						GenMethodInvocation<TTarget>,
 						typeof(TReturn),
 						typeof(TTarget),
@@ -309,9 +318,9 @@ namespace Concurrent.FastReflection.NetCore
 		//	//smBuilder.Save(fileName);
 		//}
 
-		static int GetKey<T, R>(MemberInfo member, string dynMethodName)
-		=> member.GetHashCode() ^ dynMethodName.GetHashCode() ^ typeof(T).GetHashCode() ^ typeof(R).GetHashCode()
-		;
+		//static int GetKey<T, R>(MemberInfo member, string dynMethodName)
+		//=> member.GetHashCode() ^ dynMethodName.GetHashCode() ^ typeof(T).GetHashCode() ^ typeof(R).GetHashCode()
+		//;
 
 		private
 		static
@@ -427,17 +436,16 @@ namespace Concurrent.FastReflection.NetCore
 
 			for (int i = 0; i < prams.Length; i++)
 			{
-			var paramType = prams[i].ParameterType;
-			if (paramType.IsByRef)
-			{
-			var byRefType = paramType.GetElementType();
-			emit.ldarg1()
-			.ldc_i4(i)
-			.ldloc(i + localVarStart);
-			if (byRefType.IsValueType)
-			emit.box(byRefType);
-			emit.stelem_ref();
-			}
+				var paramType = prams[i].ParameterType;
+				if (paramType.IsByRef)
+				{
+					var byRefType = paramType.GetElementType();
+					emit.ldarg1()
+					.ldc_i4(i)
+					.ldloc(i + localVarStart);
+					if (byRefType != null && byRefType.IsValueType) emit.box(byRefType);
+					emit.stelem_ref();
+				}
 			}
 
 			if (method.ReturnType == typeof(void)) emit.ldnull();
@@ -456,7 +464,7 @@ namespace Concurrent.FastReflection.NetCore
 					else if (field.FieldType == typeof(float)) e.ldc_r4((float) field.GetRawConstantValue());
 					else if (field.FieldType == typeof(double)) e.ldc_r8((double)field.GetRawConstantValue());
 					else if (field.FieldType == typeof(string)) e.ldstr((string) field.GetRawConstantValue());
-					else throw new NotSupportedException(string.Format("Creating a FieldGetter for type: {0} is unsupported.", field.FieldType.Name));
+					else throw new NotSupportedException($"Creating a FieldGetter for type: {field.FieldType.Name} is unsupported.");
 					return;
 				}
 				e.lodfld((FieldInfo)f);
@@ -549,7 +557,7 @@ namespace Concurrent.FastReflection.NetCore
 
 			// we're weakly-typed
 			targetType = member.DeclaringType;
-			if (!targetType.IsValueType) // are we a reference-type?
+			if (targetType != null && !targetType.IsValueType) // are we a reference-type?
 			{
 				// load and cast target, load and cast value and set
 				// ((TargetType)target).member = (MemberType)value;

@@ -1,10 +1,13 @@
 ﻿using System;
 using System.Reflection;
 
-namespace Concurrent.FastReflection.NetCore
+namespace Concurrent.FastReflection.NetStandard.DelegateCache.DelegateConfiguration
 {
 	internal class MemberDelegateConfiguration<TTarget, TReturn> : ADelegateConfiguration<MemberDelegateConfiguration<TTarget, TReturn>>
 	{
+		private int Code { get; }
+		protected override int FactoryGetHashCode() => Code;
+
 		public Type TargetType => typeof(TTarget);
 		public Type ReturnType => typeof(TReturn);
 		public MemberInfo Member { get; }
@@ -15,26 +18,20 @@ namespace Concurrent.FastReflection.NetCore
 			: base(storeDelegate)
 		{
 			Member = member ?? throw new ArgumentNullException(nameof(member));
-			HashCode = GetHashCode();
-		}
-
-		public override int GetHashCode()
-		{
-			int code;
 			unchecked
 			{
-				code = TargetType.GetHashCode();
-				code ^= 397 * ReturnType.GetHashCode();
-				code ^= 397 * ReturnType.GetHashCode();
-				code ^= 397 * Member.GetHashCode();
-				return code;
+				Code = TargetType.GetHashCode();
+				Code ^= 397 * ReturnType.GetHashCode();
+				Code ^= 397 * Member.GetHashCode();
 			}
 		}
 
 		protected override bool EqualsOfT(MemberDelegateConfiguration<TTarget, TReturn> other) =>
-			other?.TargetType == TargetType &&
-			other.ReturnType == ReturnType &&
-			other.Member == Member
+		other != null &&
+		other.Code == Code &&
+		other.TargetType == TargetType &&
+		other.ReturnType == ReturnType &&
+		other.Member == Member
 		;
 	}
 }

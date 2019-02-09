@@ -1,6 +1,7 @@
 ﻿using System;
+using Concurrent.FastReflection.NetStandard.DelegateCache.DelegateConfiguration;
 
-namespace Concurrent.FastReflection.NetCore
+namespace Concurrent.FastReflection.NetStandard.DelegateCache
 {
 	internal class DelegateCacheTransaction<TDelegateConfig> : IDisposable
 		where TDelegateConfig : ADelegateConfiguration
